@@ -37,31 +37,30 @@ jobs:
 
 The explanation appears on the run's summary page. The action also has outputs (`failed-jobs`, `causes`, `report-path`) and inputs to pick jobs (`include-jobs`, `exclude-jobs`), add your own rules (`rules`), and turn on the model (`llm`, `anthropic-api-key`, `strict-llm`). It needs `python3` 3.11 or newer on the runner; `ubuntu-latest` has it.
 
-A report looks like this (here from a log in this repo's test corpus, run through `ci-failure-explainer explain --log`):
+A report looks like this. It is the real one from this repo's own CI run, in which one job fails on purpose and the next job runs the action on it (the log is a few hundred lines; the report names the failing test and the line that shows it):
 
 ````markdown
-## Why `python-module-missing.log` failed
-command: `pytest -q`
+## Why `Planted failure (on purpose)` failed
+conclusion: **failure** · failed step: `Run the test that fails on purpose` · command: `python -m pytest examples/planted -q` · [job log](...)
 
-### Most likely cause: Python cannot import a module that is not installed
+### Most likely cause: Tests failed
 
-`httpx` is imported but not installed in the job's environment.
+A test assertion failed (first: `examples/planted/test_orders.py::test_total_discount`, assert 100 == 90). The failure section above the summary shows the values that were compared.
 
 What to try:
 
-1. Add it to the requirements the install step uses (or to `pyproject.toml`).
-2. If it is your own package, install it (`pip install -e .`) or set `PYTHONPATH`.
-3. Check that the install step ran, and ran with the same Python as the failing step.
+1. Reproduce with `pytest examples/planted/test_orders.py::test_total_discount`.
+2. If it only fails in CI, compare Python and dependency versions, the locale and time zone, the working directory and the environment variables.
 
-Evidence (log lines 40 to 42):
+Evidence (log lines 172 to 174):
 
 ```text
-   40 |     import httpx
-   41 | E   ModuleNotFoundError: No module named 'httpx'
-   42 | =========================== short test summary info ============================
+  172 | =========================== short test summary info ============================
+  173 | FAILED examples/planted/test_orders.py::test_total_discount - assert 100 == 90
+  174 |  +  where 100 = total([5, 95], discount=0.1)
 ```
 
-Also in the log: pytest could not even collect the tests (`pytest-collection`); A command exited with a non-zero status (`exit-code`)
+Also in the log: A command exited with a non-zero status (`exit-code`)
 ````
 
 ## Use it from the command line
