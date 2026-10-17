@@ -9,42 +9,42 @@ branding:
 
 inputs:
   github-token:
-    description: Token that can read the run's logs. Needs `actions: read`.
+    description: "Token that can read the run's logs. Needs `actions: read`."
     default: ${{ github.token }}
   run-id:
-    description: The run to explain. Default is the current run.
+    description: "The run to explain. Default is the current run."
     default: ${{ github.run_id }}
   repository:
-    description: owner/name of the repository the run belongs to.
+    description: "owner/name of the repository the run belongs to."
     default: ${{ github.repository }}
   include-jobs:
-    description: Only explain jobs whose name contains this text. Several, comma separated.
+    description: "Only explain jobs whose name contains this text. Several, comma separated."
     default: ""
   exclude-jobs:
-    description: Skip jobs whose name contains this text. Several, comma separated.
+    description: "Skip jobs whose name contains this text. Several, comma separated."
     default: ""
   rules:
-    description: Path to a TOML file with extra rules.
+    description: "Path to a TOML file with extra rules."
     default: ""
   llm:
-    description: Add a model's explanation (`true` or `false`). Needs `anthropic-api-key`.
+    description: "Add a model's explanation (`true` or `false`). Needs `anthropic-api-key`."
     default: "false"
   anthropic-api-key:
-    description: API key for the optional model step. Pass it from a secret.
+    description: "API key for the optional model step. Pass it from a secret."
     default: ""
   strict-llm:
-    description: Drop the model's answer if it names files or tests that are not in the log.
+    description: "Drop the model's answer if it names files or tests that are not in the log."
     default: "false"
 
 outputs:
   failed-jobs:
-    description: Number of failed jobs that were explained.
+    description: "Number of failed jobs that were explained."
     value: ${{ steps.explain.outputs.failed-jobs }}
   causes:
-    description: Comma separated rule ids of the primary cause of each failed job.
+    description: "Comma separated rule ids of the primary cause of each failed job."
     value: ${{ steps.explain.outputs.causes }}
   report-path:
-    description: Path of the markdown report.
+    description: "Path of the markdown report."
     value: ${{ steps.explain.outputs.report-path }}
 
 runs:
@@ -67,14 +67,17 @@ runs:
       run: |
         args=(explain --repo "$CIFE_REPO" --run-id "$CIFE_RUN_ID" --summary --github-output
               --output "$RUNNER_TEMP/ci-failure-explainer.md")
-        IFS=',' read -ra inc <<< "$CIFE_INCLUDE"
-        for s in "${inc[@]}"; do
-          if [ -n "$s" ]; then args+=(--job "$s"); fi
-        done
-        IFS=',' read -ra exc <<< "$CIFE_EXCLUDE"
-        for s in "${exc[@]}"; do
-          if [ -n "$s" ]; then args+=(--exclude-job "$s"); fi
-        done
+        add_list() {  # add_list FLAG "a, b ,c": one FLAG per non-empty, trimmed item
+          local flag="$1" item
+          IFS=',' read -ra items <<< "$2"
+          for item in "${items[@]}"; do
+            item="${item#"${item%%[![:space:]]*}"}"
+            item="${item%"${item##*[![:space:]]}"}"
+            if [ -n "$item" ]; then args+=("$flag" "$item"); fi
+          done
+        }
+        add_list --job "$CIFE_INCLUDE"
+        add_list --exclude-job "$CIFE_EXCLUDE"
         if [ -n "$CIFE_RULES" ]; then args+=(--rules "$CIFE_RULES"); fi
         if [ "$CIFE_LLM" = "true" ]; then args+=(--llm); fi
         if [ "$CIFE_STRICT" = "true" ]; then args+=(--strict-llm); fi

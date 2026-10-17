@@ -13,7 +13,7 @@ authors = [{ name = "Eren Özgü" }]
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "ruff>=0.6"]
+dev = ["pytest>=8", "ruff>=0.6", "pyyaml>=6"]
 
 [project.scripts]
 ci-failure-explainer = "ci_failure_explainer.cli:main"
