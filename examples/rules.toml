@@ -1,0 +1,13 @@
+# Extra rules. A rule with the same id as a built-in one replaces it.
+# Use with: ci-failure-explainer explain --rules examples/rules.toml ...
+
+[[rule]]
+id = "vpn-down"
+title = "The VPN gateway is unreachable"
+priority = 90
+patterns = ['connect to (?P<host>vpn\.[\w.-]+) failed']
+explanation = "The runner could not reach `{host}`. Everything after it that talks to the internal network fails too."
+fixes = [
+  "Check the status page of the VPN gateway.",
+  "Restart the vpn service on the self-hosted runner.",
+]

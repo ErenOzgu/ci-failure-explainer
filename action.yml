@@ -1,0 +1,81 @@
+name: CI failure explainer
+description: >-
+  Explain why the failed jobs of a workflow run failed: the likely cause, what to try, and the log
+  lines that show it. Rule-based; a model's reading only if you ask for it.
+author: Eren Özgü
+branding:
+  icon: alert-circle
+  color: orange
+
+inputs:
+  github-token:
+    description: Token that can read the run's logs. Needs `actions: read`.
+    default: ${{ github.token }}
+  run-id:
+    description: The run to explain. Default is the current run.
+    default: ${{ github.run_id }}
+  repository:
+    description: owner/name of the repository the run belongs to.
+    default: ${{ github.repository }}
+  include-jobs:
+    description: Only explain jobs whose name contains this text. Several, comma separated.
+    default: ""
+  exclude-jobs:
+    description: Skip jobs whose name contains this text. Several, comma separated.
+    default: ""
+  rules:
+    description: Path to a TOML file with extra rules.
+    default: ""
+  llm:
+    description: Add a model's explanation (`true` or `false`). Needs `anthropic-api-key`.
+    default: "false"
+  anthropic-api-key:
+    description: API key for the optional model step. Pass it from a secret.
+    default: ""
+  strict-llm:
+    description: Drop the model's answer if it names files or tests that are not in the log.
+    default: "false"
+
+outputs:
+  failed-jobs:
+    description: Number of failed jobs that were explained.
+    value: ${{ steps.explain.outputs.failed-jobs }}
+  causes:
+    description: Comma separated rule ids of the primary cause of each failed job.
+    value: ${{ steps.explain.outputs.causes }}
+  report-path:
+    description: Path of the markdown report.
+    value: ${{ steps.explain.outputs.report-path }}
+
+runs:
+  using: composite
+  steps:
+    - id: explain
+      shell: bash
+      env:
+        # inputs go through the environment, never into the script text
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        ANTHROPIC_API_KEY: ${{ inputs.anthropic-api-key }}
+        CIFE_RUN_ID: ${{ inputs.run-id }}
+        CIFE_REPO: ${{ inputs.repository }}
+        CIFE_INCLUDE: ${{ inputs.include-jobs }}
+        CIFE_EXCLUDE: ${{ inputs.exclude-jobs }}
+        CIFE_RULES: ${{ inputs.rules }}
+        CIFE_LLM: ${{ inputs.llm }}
+        CIFE_STRICT: ${{ inputs.strict-llm }}
+        ACTION_PATH: ${{ github.action_path }}
+      run: |
+        args=(explain --repo "$CIFE_REPO" --run-id "$CIFE_RUN_ID" --summary --github-output
+              --output "$RUNNER_TEMP/ci-failure-explainer.md")
+        IFS=',' read -ra inc <<< "$CIFE_INCLUDE"
+        for s in "${inc[@]}"; do
+          if [ -n "$s" ]; then args+=(--job "$s"); fi
+        done
+        IFS=',' read -ra exc <<< "$CIFE_EXCLUDE"
+        for s in "${exc[@]}"; do
+          if [ -n "$s" ]; then args+=(--exclude-job "$s"); fi
+        done
+        if [ -n "$CIFE_RULES" ]; then args+=(--rules "$CIFE_RULES"); fi
+        if [ "$CIFE_LLM" = "true" ]; then args+=(--llm); fi
+        if [ "$CIFE_STRICT" = "true" ]; then args+=(--strict-llm); fi
+        PYTHONPATH="$ACTION_PATH" python3 -m ci_failure_explainer "${args[@]}" > /dev/null

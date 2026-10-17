@@ -1,0 +1,95 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install ruff
+      - run: ruff check .
+      - run: ruff format --check .
+      - name: actionlint
+        run: |
+          set -euo pipefail
+          v=1.7.7
+          base="https://github.com/rhysd/actionlint/releases/download/v${v}"
+          curl -fsSL -o "actionlint.tgz" "${base}/actionlint_${v}_linux_amd64.tar.gz"
+          curl -fsSL -o "checksums.txt" "${base}/actionlint_${v}_checksums.txt"
+          grep " actionlint_${v}_linux_amd64.tar.gz\$" checksums.txt | sed 's/ actionlint_.*/ actionlint.tgz/' | sha256sum -c -
+          tar -xzf actionlint.tgz actionlint
+          ./actionlint
+
+  test:
+    name: Tests (Python ${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: pip install -e '.[dev]'
+      - run: python -m pytest -q
+
+  # This job fails on purpose. continue-on-error keeps the run green; the job below reads the
+  # real log of this real failure.
+  planted-failure:
+    name: Planted failure (on purpose)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pytest
+      - name: Run the test that fails on purpose
+        run: python -m pytest examples/planted -q
+
+  explain-planted-failure:
+    name: The action explains the planted failure
+    needs: [planted-failure]
+    if: always()
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run the action on this run
+        id: explain
+        uses: ./
+        with:
+          include-jobs: Planted failure
+      - name: The report must name the real cause
+        env:
+          FAILED: ${{ steps.explain.outputs.failed-jobs }}
+          CAUSES: ${{ steps.explain.outputs.causes }}
+          REPORT: ${{ steps.explain.outputs.report-path }}
+        run: |
+          set -euo pipefail
+          cat "$REPORT"
+          test "$FAILED" = 1
+          test "$CAUSES" = pytest-failures
+          grep -q 'Most likely cause: Tests failed' "$REPORT"
+          grep -q 'examples/planted/test_orders.py::test_total_discount' "$REPORT"
+          grep -q 'assert 100 == 90' "$REPORT"

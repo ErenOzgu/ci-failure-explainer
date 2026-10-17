@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="420" viewBox="0 0 1280 420" role="img" aria-labelledby="t d">
+  <title id="t">ci-failure-explainer</title>
+  <desc id="d">Explain why a GitHub Actions job failed: 57 rules, the log lines as evidence, an optional LLM whose answer is checked against the log.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0d1117"/>
+      <stop offset="1" stop-color="#1b2230"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fb7185" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#fb7185" stop-opacity="0"/>
+    </linearGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke="#ffffff" stroke-opacity="0.035"/>
+    </pattern>
+  </defs>
+  <rect width="1280" height="420" fill="url(#bg)"/>
+  <rect width="1280" height="420" fill="url(#grid)"/>
+  <rect width="640" height="420" fill="url(#glow)"/>
+  <g transform="translate(0 0)">
+  <g font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif">
+    <text x="64" y="128" font-size="13" letter-spacing="3" fill="#fb7185" font-weight="600">GITHUB ACTIONS  ·  PYTHON  ·  CI</text>
+    <text x="62" y="196" font-size="52" font-weight="700" fill="#f0f6fc">ci-failure-explainer</text>
+    <text x="64" y="244" font-size="22" fill="#9aa7b8">Why did the job fail? The likely cause, what to try,</text>
+    <text x="64" y="274" font-size="22" fill="#9aa7b8">and the log lines that show it. Rules first.</text>
+    <g font-size="14" font-weight="600" fill="#d0d7de">
+      <rect x="64" y="304" width="101" height="34" rx="17" fill="#ffffff" fill-opacity="0.07" stroke="#ffffff" stroke-opacity="0.14"/><text x="114" y="326" text-anchor="middle">57 rules</text>
+      <rect x="177" y="304" width="151" height="34" rx="17" fill="#ffffff" fill-opacity="0.07" stroke="#ffffff" stroke-opacity="0.14"/><text x="252" y="326" text-anchor="middle">evidence lines</text>
+      <rect x="340" y="304" width="126" height="34" rx="17" fill="#ffffff" fill-opacity="0.07" stroke="#ffffff" stroke-opacity="0.14"/><text x="403" y="326" text-anchor="middle">LLM checked</text>
+    </g>
+  </g>
+  <g transform="translate(700 56)">
+    <rect width="516" height="308" rx="12" fill="#0b0f14" stroke="#ffffff" stroke-opacity="0.12"/>
+    <rect width="516" height="38" rx="12" fill="#ffffff" fill-opacity="0.05"/>
+    <circle cx="22" cy="19" r="6" fill="#f85149" fill-opacity="0.85"/>
+    <circle cx="42" cy="19" r="6" fill="#d29922" fill-opacity="0.85"/>
+    <circle cx="62" cy="19" r="6" fill="#3fb950" fill-opacity="0.85"/>
+    <text x="258" y="24" text-anchor="middle" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="12" fill="#8b949e">ci-failure-explainer explain</text>
+    <g font-family="SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace" font-size="13" fill="#8b949e">
+      <text x="22" y="76" xml:space="preserve"><tspan fill="#8b949e">failing step: </tspan><tspan fill="#e6edf3">pytest -q</tspan></text>
+      <text x="22" y="102" xml:space="preserve"><tspan fill="#8b949e">cause: </tspan><tspan fill="#3fb950">python cannot import a module</tspan></text>
+      <text x="22" y="128" xml:space="preserve"><tspan fill="#ff7b72">  41 | E  ModuleNotFoundError: No module</tspan></text>
+      <text x="22" y="154" xml:space="preserve"><tspan fill="#ff7b72">      named 'httpx'</tspan></text>
+      <text x="22" y="180" xml:space="preserve"><tspan fill="#8b949e">try: </tspan><tspan fill="#e6edf3">add httpx to the requirements</tspan></text>
+      <text x="22" y="206" xml:space="preserve"><tspan fill="#8b949e">ai check: </tspan><tspan fill="#3fb950">3 of 3 references in the log</tspan></text>
+    </g>
+  </g>
+  </g>
+</svg>

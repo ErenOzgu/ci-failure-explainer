@@ -1,0 +1,43 @@
+2026-10-12T09:14:00.1234567Z Current runner version: '2.329.0'
+2026-10-12T09:14:00.2469134Z ##[group]Runner Image Provisioner
+2026-10-12T09:14:00.3703701Z Hosted Compute Agent
+2026-10-12T09:14:00.4938268Z ##[endgroup]
+2026-10-12T09:14:00.6172835Z ##[group]Operating System
+2026-10-12T09:14:00.7407402Z Ubuntu
+2026-10-12T09:14:00.8641969Z 24.04.3
+2026-10-12T09:14:00.9876536Z LTS
+2026-10-12T09:14:00.1111103Z ##[endgroup]
+2026-10-12T09:14:01.2345670Z ##[group]Runner Image
+2026-10-12T09:14:01.3580237Z Image: ubuntu-24.04
+2026-10-12T09:14:01.4814804Z Version: 20251006.1.1
+2026-10-12T09:14:01.6049371Z ##[endgroup]
+2026-10-12T09:14:01.7283938Z Prepare workflow directory
+2026-10-12T09:14:01.8518505Z ##[group]Run actions/checkout@v4
+2026-10-12T09:14:01.9753072Z with:
+2026-10-12T09:14:01.0987639Z   repository: example/app
+2026-10-12T09:14:01.2222206Z   fetch-depth: 1
+2026-10-12T09:14:01.3456773Z ##[endgroup]
+2026-10-12T09:14:02.4691340Z Syncing repository: example/app
+2026-10-12T09:14:02.5925907Z Fetching the repository
+2026-10-12T09:14:02.7160474Z Determining the checkout info
+2026-10-12T09:14:02.8395041Z ##[group]Run ./scripts/warm-cache.sh
+2026-10-12T09:14:02.9629608Z ./scripts/warm-cache.sh
+2026-10-12T09:14:02.0864175Z shell: /usr/bin/bash -e {0}
+2026-10-12T09:14:02.2098742Z ##[endgroup]
+2026-10-12T09:14:02.3333309Z retrying after Connection refused (attempt 1 of 3)
+2026-10-12T09:14:02.4567876Z rate limit remaining: 4980; ETIMEDOUT on mirror 1, using mirror 2
+2026-10-12T09:14:02.5802443Z ModuleNotFoundError: No module named 'optional_speedup' (ignored, falling back to pure python)
+2026-10-12T09:14:03.7037010Z cache warmed
+2026-10-12T09:14:03.8271577Z ##[group]Run python manage.py check
+2026-10-12T09:14:03.9506144Z python manage.py check
+2026-10-12T09:14:03.0740711Z shell: /usr/bin/bash -e {0}
+2026-10-12T09:14:03.1975278Z ##[endgroup]
+2026-10-12T09:14:03.3209845Z Traceback (most recent call last):
+2026-10-12T09:14:03.4444412Z   File "/home/runner/work/app/app/manage.py", line 10, in <module>
+2026-10-12T09:14:03.5678979Z     from django.utils.encoding import force_text
+2026-10-12T09:14:03.6913546Z ImportError: cannot import name 'force_text' from 'django.utils.encoding' (/opt/hostedtoolcache/Python/3.12.7/x64/lib/python3.12/site-packages/django/utils/encoding.py)
+2026-10-12T09:14:03.8148113Z ##[error]Process completed with exit code 1.
+2026-10-12T09:14:04.9382680Z ##[group]Post Run actions/checkout@v4
+2026-10-12T09:14:04.0617247Z git config --local --unset-all http.https://github.com/.extraheader
+2026-10-12T09:14:04.1851814Z ##[endgroup]
+2026-10-12T09:14:04.3086381Z Cleaning up orphan processes

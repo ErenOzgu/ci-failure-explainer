@@ -1,0 +1,15 @@
+2026-10-12T09:14:00.1234567Z Current runner version: '2.329.0'
+2026-10-12T09:14:00.2469134Z ##[group]Runner Image Provisioner
+2026-10-12T09:14:00.3703701Z Hosted Compute Agent
+2026-10-12T09:14:00.4938268Z ##[endgroup]
+2026-10-12T09:14:00.6172835Z ##[group]Operating System
+2026-10-12T09:14:00.7407402Z Ubuntu
+2026-10-12T09:14:00.8641969Z 24.04.3
+2026-10-12T09:14:00.9876536Z LTS
+2026-10-12T09:14:00.1111103Z ##[endgroup]
+2026-10-12T09:14:01.2345670Z ##[group]Runner Image
+2026-10-12T09:14:01.3580237Z Image: ubuntu-24.04
+2026-10-12T09:14:01.4814804Z Version: 20251006.1.1
+2026-10-12T09:14:01.6049371Z ##[endgroup]
+2026-10-12T09:14:01.7283938Z Prepare workflow directory
+2026-10-12T09:14:01.8518505Z ##[error]Unable to resolve action `actions/checkout@v9`, unable to find version `v9`
